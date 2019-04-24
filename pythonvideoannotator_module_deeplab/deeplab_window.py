@@ -10,7 +10,7 @@ from pyforms.controls import ControlFile
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
 from pythonvideoannotator_models.models.video import Video
 
-from os import listdir
+from os import listdir, getcwd
 from os.path import isfile, join, splitext, abspath, dirname, basename
 import csv
 import deeplabcut
@@ -34,21 +34,27 @@ class DeepLabWindow(BaseWidget):
         self._outfile       = ControlText('Output file name')
         self._exportButton  = ControlButton('Export')
 
+        self._unlabeledFramesButton = ControlButton("Check unlabeled frames ")
+
         self._formset = [
             ('_file', '_importButton'),
+            ' ',
+            '_unlabeledFramesButton',
+            ' ',
             '_outdir',
             '_outfile',
-            '_exportButton'
+            '_exportButton',
         ]
 
         self._importButton.value = self.__importFromYAMLFile
         self._exportButton.value = self.__exportToCSVFile
+        self._unlabeledFramesButton.value = self.__checkUnlabeledFrames
 
 
         self.set_margin(5)
         #self.layout().setMargin(5)
         self.setMinimumHeight(400)
-        self.setMinimumWidth(800)
+        self.setMinimumWidth(600)
 
         self._scorer = ""
         self._videos = []
@@ -119,7 +125,19 @@ class DeepLabWindow(BaseWidget):
             if video.name not in video_names:
                 continue
 
-            csv_file_name = "res" + video.name + ".csv"
+            if self._outdir.value == "":
+                if self._outfile.value == "":
+                    csv_file_name = join(getcwd(),video.name)
+                else:
+                    csv_file_name = join(getcwd(), self._outfile.value)
+            else:
+                if self._outfile.value == "":
+                    csv_file_name =  join(self._outdir.value, video.name) 
+                else:
+                    csv_file_name =  join(self._outdir.value, self._outfile.value)
+
+            csv_file_name = csv_file_name + ".csv"
+
             with open(csv_file_name, mode='w') as csv_file:
 
                 writer = csv.writer(csv_file, delimiter=',')
@@ -158,8 +176,6 @@ class DeepLabWindow(BaseWidget):
                             ordered_objects.append(obj)
                             break
 
-                print(len(ordered_objects))
-
                 #write the coords of each bodypart for every labeled frame
                 track = self.mainwindow.timeline.get_track(video.name)
                 if track==None:
@@ -190,6 +206,59 @@ class DeepLabWindow(BaseWidget):
                     writer.writerow(currentRow)
 
         QMessageBox.information(self, "Export finished", "Completed export to CSV file")
+
+
+    def __checkUnlabeledFrames(self):
+
+        video_names = []
+        for video_path in self.videos.keys():
+            video_names.append(splitext(basename(video_path))[0])
+
+        unlabeled_frames={}
+        str_unlabeled_frames = ""
+        
+        for video in self.mainwindow.project.videos:
+
+            if video.name not in video_names:
+                continue
+
+            unlabeled_frames[video.name] = {}
+
+            track = self.mainwindow.timeline.get_track(video.name)
+            if track==None:
+                print("No track was found with the name: "+ video.name)
+                print("Stopped checking unlabeled frames")
+                return
+
+            frames_to_label = []
+            
+            for event in track.events:
+                frames_to_label.append(event.begin)
+
+
+            for obj in video.objects:
+                unlabeled_frames[video.name][obj.name] = []
+                for path in obj.paths:
+                    for frame in frames_to_label:
+                        if frame >= len(path.data) or path.data[round(frame)] is None:
+                            unlabeled_frames[video.name][obj.name].append(frame)
+
+        for video_name in unlabeled_frames:
+            str_unlabeled_frames += video.name + ":\n"
+            for obj_name in unlabeled_frames[video_name]:
+                str_unlabeled_frames += obj_name + ":\n"
+                str_unlabeled_frames += str(unlabeled_frames[video_name][obj_name])
+                str_unlabeled_frames += "\n\n"
+            str_unlabeled_frames += "\n"
+
+
+        with open("unlabeled_frames.txt", mode='w') as file:
+            file.write(str_unlabeled_frames)
+
+        message = "The results are in the file 'unlabeled_frames.txt' in your current directory"
+
+        QMessageBox.information(self, "Finished checking unlabeled frames", message)
+
 
     
     def save_form(self, data, folder):

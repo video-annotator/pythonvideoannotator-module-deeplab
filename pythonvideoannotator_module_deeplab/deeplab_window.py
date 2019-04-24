@@ -23,7 +23,7 @@ if conf.PYFORMS_MODE=='GUI':
 class DeepLabWindow(BaseWidget):
 
     def __init__(self, parent=None):
-        super(DeepLabWindow, self).__init__('DeepLab', parent_win=parent)
+        super(DeepLabWindow, self).__init__('Label DeepLabCut', parent_win=parent)
         self.mainwindow = parent
 
 

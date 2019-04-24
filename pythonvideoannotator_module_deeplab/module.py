@@ -13,7 +13,7 @@ class Module(object):
         self.deeplab_window = DeepLabWindow(self)
 
         self.mainmenu[1]['Modules'].append(
-            {'DeepLab': self.deeplab_window.show, 'icon':conf.ANNOTATOR_ICON_DEEPLAB },         
+            {'Label DeepLabCut': self.deeplab_window.show, 'icon':conf.ANNOTATOR_ICON_DEEPLAB },         
         )
 
     ######################################################################################

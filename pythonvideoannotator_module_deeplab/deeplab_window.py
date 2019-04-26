@@ -13,7 +13,13 @@ from pythonvideoannotator_models.models.video import Video
 from os import listdir, getcwd
 from os.path import isfile, join, splitext, abspath, dirname, basename
 import csv
-import deeplabcut
+
+try:
+    4/0
+    import deeplabcut
+    deeplabcut_is_installed = True 
+except:
+    deeplabcut_is_installed = False
 
 import re, yaml
 
@@ -26,40 +32,48 @@ class DeepLabWindow(BaseWidget):
         super(DeepLabWindow, self).__init__('Label DeepLabCut', parent_win=parent)
         self.mainwindow = parent
 
+        if deeplabcut_is_installed:
 
-        self._file         = ControlFile('YAML  to import from:')
-        self._importButton  = ControlButton('Import')
+            self._file         = ControlFile('YAML  to import from:')
+            self._importButton  = ControlButton('Import')
 
-        self._outdir        = ControlDir('Output directory')
-        self._outfile       = ControlText('Output file name')
-        self._exportButton  = ControlButton('Export')
+            self._outdir        = ControlDir('Output directory')
+            self._outfile       = ControlText('Output file name')
+            self._exportButton  = ControlButton('Export')
 
-        self._unlabeledFramesButton = ControlButton("Check unlabeled frames ")
+            self._unlabeledFramesButton = ControlButton("Check unlabeled frames ")
 
-        self._formset = [
-            ('_file', '_importButton'),
-            ' ',
-            '_unlabeledFramesButton',
-            ' ',
-            '_outdir',
-            '_outfile',
-            '_exportButton',
-        ]
+            self.formset = [
+                ('_file', '_importButton'),
+                ' ',
+                '_unlabeledFramesButton',
+                ' ',
+                '_outdir',
+                '_outfile',
+                '_exportButton',
+            ]
 
-        self._importButton.value = self.__importFromYAMLFile
-        self._exportButton.value = self.__exportToCSVFile
-        self._unlabeledFramesButton.value = self.__checkUnlabeledFrames
+            self._importButton.value = self.__importFromYAMLFile
+            self._exportButton.value = self.__exportToCSVFile
+            self._unlabeledFramesButton.value = self.__checkUnlabeledFrames
 
 
-        self.set_margin(5)
-        #self.layout().setMargin(5)
-        self.setMinimumHeight(400)
-        self.setMinimumWidth(600)
+            self.set_margin(5)
+            #self.layout().setMargin(5)
+            self.setMinimumHeight(400)
+            self.setMinimumWidth(600)
 
-        self._scorer = ""
-        self._videos = []
-        self._bodyparts = []
-        self._crop = []
+            self._scorer = ""
+            self._videos = []
+            self._bodyparts = []
+            self._crop = []
+
+        else:
+            link = "<a target='_blank' href=\"https://pythonvideoannotator.readthedocs.io/en/master/user-docs\
+            /install_and_run/index.html#install-deeplabcut\"> https://pythonvideoannotator.readthedocs.io/en/master/user-docs\
+            /install_and_run/index.html#install-deeplabcut </a>"
+
+            self.formset = [ "Please follow the instructions in the link below to install deeplabcut: <br/><br/>" + link]
 
     ###########################################################################
     ### EVENTS ################################################################

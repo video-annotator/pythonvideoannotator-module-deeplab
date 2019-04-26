@@ -15,7 +15,6 @@ from os.path import isfile, join, splitext, abspath, dirname, basename
 import csv
 
 try:
-    4/0
     import deeplabcut
     deeplabcut_is_installed = True 
 except:

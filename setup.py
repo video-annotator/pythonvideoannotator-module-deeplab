@@ -6,10 +6,10 @@ import re
 
 setup(
 	name='Python video annotator - module - deeplab',
-	version=0.0,
+	version=0.3,
 	description="""""",
 	author=['Manuel Manso'],
 	author_email='manel_manso@hotmail.com',
 	url='https://bitbucket.org/fchampalimaud/pythonvideoannotator-module-deeplab',
-	packages=find_packages(),
+	packages=find_packages()
 )

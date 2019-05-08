@@ -63,7 +63,7 @@ class DeepLabWindow(BaseWidget):
             self.setMinimumWidth(600)
 
             self._scorer = ""
-            self._videos = []
+            self._videos = {}
             self._bodyparts = []
             self._crop = []
 
@@ -82,24 +82,33 @@ class DeepLabWindow(BaseWidget):
 
         config_path = self._file.value
 
+        if config_path == "":
+            QMessageBox.warning(self, "Import error", "No YAML file was selected. Aborted import!")
+            return
+
         with open(config_path, 'r') as f:
             try:
                 dict_yaml = yaml.load(f)
             except yaml.YAMLError as exc:
-                print(exc)
+                QMessageBox.warning(self, "Import error", "Could not import the chosen YAML file. Aborted import!")
                 return
 
-        self.scorer = dict_yaml.get("scorer")
-        self.videos = dict_yaml.get("video_sets")
-        self.bodyparts = dict_yaml.get("bodyparts")
-        self.crop = dict_yaml.get("crop")
+        try:
+            self.scorer = dict_yaml.get("scorer")
+            self.videos = dict_yaml.get("video_sets")
+            self.bodyparts = dict_yaml.get("bodyparts")
+            self.crop = dict_yaml.get("crop")
+
+        except AttributeError as err:
+                QMessageBox.warning(self, "Import error", "The YAML is not configured correctly. It needs to have a scorer, a videos and a bodyparts attribute. Each video also needs to have a crop attribute.")
+                return
 
         if len(self.videos) != len(set(self.videos)):
-            print("Two videos can't have the same name!")
+            QMessageBox.warning(self, "Import error", "Two videos can't have the same name! Aborted import!")
             return
 
         if len(self.bodyparts) != len(set(self.bodyparts)):
-            print("Two bodyparts can't have the same name!")
+            QMessageBox.warning(self, "Import error", "Two bodyparts can't have the same name! Aborted import!")
             return
 
         for video in self.videos.keys():
@@ -128,6 +137,10 @@ class DeepLabWindow(BaseWidget):
 
 
     def __exportToCSVFile(self):
+
+        if len(self.videos.keys())==0:
+            QMessageBox.warning(self, "Export error", "You don't have any videos to export! Aborted export!")
+            return
 
         video_names = []
         for video_path in self.videos.keys():
@@ -192,8 +205,8 @@ class DeepLabWindow(BaseWidget):
                 #write the coords of each bodypart for every labeled frame
                 track = self.mainwindow.timeline.get_track(video.name)
                 if track==None:
-                    print("No track was found with the name: "+ video.name)
-                    print("Stopped exporting to CSV file")
+                    msg = "No track was found with the name: " + video.name +  "."
+                    QMessageBox.warning(self, "Export error", msg +" Aborted export!")
                     return
 
                 for event in track.events:
@@ -207,14 +220,15 @@ class DeepLabWindow(BaseWidget):
 
                             data = path.data
 
-                            if data[frame] is not None:
+                            if frame<len(data) and data[frame] is not None:
                                 currentRow.append(data[frame][0])
                                 currentRow.append(data[frame][1])
 
                             break #there should only be one path for each object
                         
                         else:
-                            print("Object has no path")
+                            msg = "Object " + obj.name + " has no path. All objects need to have a path to be exported."
+                            QMessageBox.warning(self, "Export error", msg + " Aborted export!")
 
                     writer.writerow(currentRow)
 
@@ -222,6 +236,10 @@ class DeepLabWindow(BaseWidget):
 
 
     def __checkUnlabeledFrames(self):
+
+        if len(self.videos.keys())==0:
+            QMessageBox.warning(self, "Error", "There are no videos in the project! Stopped checking unlabeled frames!")
+            return
 
         video_names = []
         for video_path in self.videos.keys():
@@ -239,8 +257,8 @@ class DeepLabWindow(BaseWidget):
 
             track = self.mainwindow.timeline.get_track(video.name)
             if track==None:
-                print("No track was found with the name: "+ video.name)
-                print("Stopped checking unlabeled frames")
+                msg = "No track was found with the name: " + video.name + "."
+                QMessageBox.warning(self, "Error", msg + " Stopped checking unlabeled frames!")
                 return
 
             frames_to_label = []

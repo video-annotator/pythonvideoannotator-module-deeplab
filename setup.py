@@ -6,7 +6,7 @@ import re
 
 setup(
 	name='Python video annotator - module - deeplab',
-	version=0.5,
+	version=0.6,
 	description="""""",
 	author=['Manuel Manso'],
 	author_email='manel_manso@hotmail.com',

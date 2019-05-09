@@ -21,6 +21,7 @@ class Module(object):
     ######################################################################################
 
     def save(self, data, project_path=None):
+
         data = super(Module, self).save(data, project_path)
 
         modules_folder = os.path.join(project_path, 'modules')

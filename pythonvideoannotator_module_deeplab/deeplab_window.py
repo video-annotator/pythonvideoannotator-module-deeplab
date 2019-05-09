@@ -65,7 +65,6 @@ class DeepLabWindow(BaseWidget):
             self._scorer = ""
             self._videos = {}
             self._bodyparts = []
-            self._crop = []
 
         else:
             link = "<a target='_blank' href=\"https://pythonvideoannotator.readthedocs.io/en/master/user-docs\
@@ -97,7 +96,6 @@ class DeepLabWindow(BaseWidget):
             self.scorer = dict_yaml.get("scorer")
             self.videos = dict_yaml.get("video_sets")
             self.bodyparts = dict_yaml.get("bodyparts")
-            self.crop = dict_yaml.get("crop")
 
         except AttributeError as err:
                 QMessageBox.warning(self, "Import error", "The YAML is not configured correctly. It needs to have a scorer, a videos and a bodyparts attribute. Each video also needs to have a crop attribute.")
@@ -294,14 +292,13 @@ class DeepLabWindow(BaseWidget):
     
     def save_form(self, data, folder):
 
-        return {"scorer" : self.scorer, "videos" : self.videos, "bodyparts" : self.bodyparts, "crop" : self.crop}
+        return {"scorer" : self.scorer, "videos" : self.videos, "bodyparts" : self.bodyparts}
 
     def load_form(self, data, folder):
 
         self.scorer = data["scorer"]
         self.videos = data["videos"]
         self.bodyparts = data["bodyparts"]
-        self.crop = data["crop"]
 
 
     ###########################################################################

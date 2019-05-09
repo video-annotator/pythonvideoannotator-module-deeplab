@@ -9,7 +9,7 @@ with open('README.md', 'r') as fd:
 
 setup(
 	name='Python video annotator - module - deeplab',
-	version=0.8,
+	version=0.9,
 	description="""""",
 	author=['Manuel Manso'],
 	author_email='manel_manso@hotmail.com',

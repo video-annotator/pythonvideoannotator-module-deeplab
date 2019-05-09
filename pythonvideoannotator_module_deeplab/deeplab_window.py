@@ -88,7 +88,7 @@ class DeepLabWindow(BaseWidget):
 
         with open(config_path, 'r') as f:
             try:
-                dict_yaml = yaml.load(f)
+                dict_yaml = yaml.load(f, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:
                 QMessageBox.warning(self, "Import error", "Could not import the chosen YAML file. Aborted import!")
                 return

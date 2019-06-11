@@ -291,14 +291,16 @@ class DeepLabWindow(BaseWidget):
 
     
     def save_form(self, data, folder):
-
-        return {"scorer" : self.scorer, "videos" : self.videos, "bodyparts" : self.bodyparts}
+        if deeplabcut_is_installed:
+            return {"scorer" : self.scorer, "videos" : self.videos, "bodyparts" : self.bodyparts}
+        else:
+            return  data
 
     def load_form(self, data, folder):
 
-        self.scorer = data["scorer"]
-        self.videos = data["videos"]
-        self.bodyparts = data["bodyparts"]
+        self.scorer = data.get("scorer")
+        self.videos = data.get("videos")
+        self.bodyparts = data.get("bodyparts")
 
 
     ###########################################################################
